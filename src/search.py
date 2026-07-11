@@ -65,7 +65,6 @@ Rewrite:
 
 Give an example of encapsulation.
 
-
 ------------------------
 
 Conversation:
@@ -79,7 +78,6 @@ User: What are its types?
 Rewrite:
 
 What are the types of normalization?
-
 
 ------------------------
 
@@ -177,8 +175,20 @@ Question
 
         response = self.llm.invoke(prompt)
 
+        answer = response.content.strip()
+
         self.history.save("User", question)
-        self.history.save("Assistant", response.content)
+        self.history.save("Assistant", answer)
+
+        # --------------------------------------------------
+        # Don't return sources when no answer exists
+        # --------------------------------------------------
+
+        if answer == "I couldn't find that information in the uploaded document.":
+            return {
+                "answer": answer,
+                "sources": [],
+            }
 
         unique_sources = []
         seen = set()
@@ -205,6 +215,6 @@ Question
             )
 
         return {
-            "answer": response.content,
+            "answer": answer,
             "sources": unique_sources,
         }
